@@ -20,6 +20,7 @@ public class LoginFrame extends JFrame{
 	private JTextField textFieldUsername;
 	private JTextField textFieldPassword;
 	private JCheckBox NewUserFlag;
+	private JLabel ResultLabel;
 	private static final int SMALL_GAP = 5;
 	private static final int MEDIUM_GAP = 10;
 	private static final int LARGE_GAP = 15;
@@ -34,6 +35,8 @@ public class LoginFrame extends JFrame{
 		JLabel UsernameLabel = new JLabel("Login:");
 		JLabel PasswordLabel = new JLabel("Password:");
 		JLabel NewUserLabel = new JLabel("Если вы новый пользователь");
+		ResultLabel = new JLabel();
+		ResultLabel.setVisible(false);
 		textFieldUsername = new JTextField("Vlad", 30);
 		textFieldUsername.setMaximumSize(textFieldUsername.getPreferredSize());
 		textFieldPassword = new JTextField("1234", 30);
@@ -59,6 +62,7 @@ public class LoginFrame extends JFrame{
 					.addComponent(NewUserFlag)
 					.addGap(SMALL_GAP)
 					.addComponent(NewUserLabel))
+			.addComponent(ResultLabel)
 			.addComponent(enterButton))
 			.addContainerGap());
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
@@ -74,6 +78,8 @@ public class LoginFrame extends JFrame{
 			.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 				.addComponent(NewUserFlag)
 				.addComponent(NewUserLabel))
+			.addGap(MEDIUM_GAP)
+			.addComponent(ResultLabel)
 			.addGap(MEDIUM_GAP)
 			.addComponent(enterButton)
 			.addContainerGap());
@@ -92,8 +98,7 @@ public class LoginFrame extends JFrame{
 		
 		NetManager.addMessageListener(new MessageListener(){
 			public void messageReceived(String message) {
-				System.out.println("Received "+message);
-				//TODO вызов функции-действия
+				checkInResult(message);
 			}
 		});
 	}
@@ -102,7 +107,7 @@ public class LoginFrame extends JFrame{
 		String login = textFieldUsername.getText();
 		String password = textFieldPassword.getText();
 		if(NewUserFlag.isSelected() == false){
-			int result = NetManager.send(login, password);
+			int result = NetManager.send("CHECK_IN", login, password);
 			if(result==1){
 				JOptionPane.showMessageDialog(LoginFrame.this,"Не удалось отправить сообщение: узел-адресат не найден","Ошибка", JOptionPane.ERROR_MESSAGE);
 			}
@@ -111,9 +116,38 @@ public class LoginFrame extends JFrame{
 			}
 			else if(result==0){ //сработало правильно
 				//TODO написать возможные дейтсия
+				//возможно не понадобится: аналогичное действие в checkInResult
 			}
 		}
 		else{
+			int result = NetManager.send("NEW_USER", login, password);
+			if(result==1){
+				JOptionPane.showMessageDialog(LoginFrame.this,"Не удалось отправить сообщение: узел-адресат не найден","Ошибка", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(result==2){
+				JOptionPane.showMessageDialog(LoginFrame.this,"Не удалось отправить сообщение", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(result==0){ //сработало правильно
+				//TODO написать возможные дейтсия
+				//возможно не понадобится: аналогичное действие в checkInResult
+			}
+		}
+	}
+	//функция изменеия ResultLabel в зависимости от результата ввода логина и пароля(или регистрации)
+	private void checkInResult(String text){ 
+		ResultLabel.setVisible(true);
+		if(text.equals("true")){
+			ResultLabel.setText("Пароль правильный!");
+			//TODO открыть новый фрейм диалога
+		}
+		else if(text.equals("false")){
+			ResultLabel.setText("Логин или пароль неправильный");
+		}
+		else if(text.equals("created")){
+			ResultLabel.setText("Учетная запись создана");
+		}
+		else if(text.equals("not_created")){
+			ResultLabel.setText("Такой логин уже есть. Придумайте другой.");
 		}
 	}
 

@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 
 public class NetClass{
 	private static final int CLIENT_PORT = 1556;
-	private static final int SERVER_PORT = 4507;
+	private static final int SERVER_PORT = 4506;
 	private static final String SERVER_ADDRESS = "192.168.100.7";
 	private String work_type;
 	private ArrayList<MessageListener> listeners = new ArrayList<MessageListener>(5);
@@ -41,11 +41,11 @@ public class NetClass{
 		}).start();
 	}
 	
-	public int send(String login, String password){
+	public int send(String worktype, String login, String password){
 		try{
 			final Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
 			final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-			out.writeUTF("CHECK_IN");
+			out.writeUTF(worktype);
 			out.writeUTF(login);
 			out.writeUTF(password);
 			Integer port = CLIENT_PORT;
