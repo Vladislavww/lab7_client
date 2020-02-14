@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
+
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +18,7 @@ import javax.swing.GroupLayout.Alignment;
 
 
 public class LoginFrame extends JFrame{
-	private static final String FRAME_TITLE = "Клиент мгновенных сообщений";
+	private static final String FRAME_TITLE = "Клиент мгновенных сообщений-авторизация";
 	private JTextField textFieldUsername;
 	private JTextField textFieldPassword;
 	private JCheckBox NewUserFlag;
@@ -26,7 +28,7 @@ public class LoginFrame extends JFrame{
 	private static final int LARGE_GAP = 15;
 	private static final int FRAME_MINIMUM_WIDTH = 500;
 	private static final int FRAME_MINIMUM_HEIGHT = 500;
-	private NetClass NetManager = new NetClass();
+	private NetClass NetManager = new NetClass("Authorization");
 	public LoginFrame(){
 		super(FRAME_TITLE);
 		final Toolkit kit = Toolkit.getDefaultToolkit();
@@ -100,6 +102,9 @@ public class LoginFrame extends JFrame{
 			public void messageReceived(String message) {
 				checkInResult(message);
 			}
+			public void messageReceived(LinkedList<String> message) {
+				//ничего
+			}
 		});
 	}
 	
@@ -138,7 +143,20 @@ public class LoginFrame extends JFrame{
 		ResultLabel.setVisible(true);
 		if(text.equals("true")){
 			ResultLabel.setText("Пароль правильный!");
-			//TODO открыть новый фрейм диалога
+			final MenuFrame menu_frame = new MenuFrame(textFieldUsername.getText());
+			menu_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			menu_frame.setVisible(true);
+			NetManager.removeMessageListener(new MessageListener(){ //убираю слушатель за ненадобностью
+				public void messageReceived(String message) {
+					checkInResult(message);
+				}
+
+				public void messageReceived(LinkedList<String> message) {
+					//ничего
+				}
+			});
+			this.setVisible(false);
+			this.setEnabled(false);
 		}
 		else if(text.equals("false")){
 			ResultLabel.setText("Логин или пароль неправильный");
