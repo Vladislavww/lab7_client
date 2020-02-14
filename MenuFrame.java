@@ -102,11 +102,8 @@ public class MenuFrame extends JFrame {
 			public void messageReceived(String message) {
 				//ничего
 			}
-			public void messageReceived(LinkedList<String> message) {
-				for(int i=0; i<message.size(); i++){
-					System.out.println(message.get(i) + " received");
-					//TODO вывод информации на экран
-				}
+			public void messageReceived(LinkedList<String> message){
+				writeOnlineUsers(message);
 			}
 		});
 	}
@@ -117,6 +114,18 @@ public class MenuFrame extends JFrame {
 	
 	private void informServer(){
 		NetManager.send("USER_IS_ONLINE", UserName);
+	}
+	
+	private void writeOnlineUsers(LinkedList<String> list){
+		textAreaUsers.setText("");
+		for(String name:list){
+			if(name.equals(UserName)){
+				textAreaUsers.append(name + "(вы)" + '\n');
+			}
+			else{
+				textAreaUsers.append(name + '\n');
+			}
+		}
 	}
 
 }
