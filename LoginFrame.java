@@ -25,7 +25,6 @@ public class LoginFrame extends JFrame{
 	private JLabel ResultLabel;
 	private static final int SMALL_GAP = 5;
 	private static final int MEDIUM_GAP = 10;
-	private static final int LARGE_GAP = 15;
 	private static final int FRAME_MINIMUM_WIDTH = 500;
 	private static final int FRAME_MINIMUM_HEIGHT = 500;
 	private NetClass NetManager = new NetClass("Authorization");
@@ -119,10 +118,6 @@ public class LoginFrame extends JFrame{
 			else if(result==2){
 				JOptionPane.showMessageDialog(LoginFrame.this,"Ќе удалось отправить сообщение", "ќшибка", JOptionPane.ERROR_MESSAGE);
 			}
-			else if(result==0){ //сработало правильно
-				//TODO написать возможные дейтси€
-				//возможно не понадобитс€: аналогичное действие в checkInResult
-			}
 		}
 		else{
 			int result = NetManager.send("NEW_USER", login, password);
@@ -131,10 +126,6 @@ public class LoginFrame extends JFrame{
 			}
 			else if(result==2){
 				JOptionPane.showMessageDialog(LoginFrame.this,"Ќе удалось отправить сообщение", "ќшибка", JOptionPane.ERROR_MESSAGE);
-			}
-			else if(result==0){ //сработало правильно
-				//TODO написать возможные дейтси€
-				//возможно не понадобитс€: аналогичное действие в checkInResult
 			}
 		}
 	}

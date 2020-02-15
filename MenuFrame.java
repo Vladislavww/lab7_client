@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
-import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,7 +24,6 @@ public class MenuFrame extends JFrame {
 	private static final int FRAME_MINIMUM_HEIGHT = 500;
 	private static final int SMALL_GAP = 5;
 	private static final int MEDIUM_GAP = 10;
-	private static final int LARGE_GAP = 15;
 	private JTextField NameField;
 	private JTextArea textAreaUsers;
 	private static final int USERS_AREA_DEFAULT_ROWS = 10;
@@ -57,7 +55,7 @@ public class MenuFrame extends JFrame {
 		final JButton enterButton = new JButton("OK");
 		enterButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				//TODO функция для вызова фрейма-диалога
+				enter();
 			}
 		});
 		final JPanel MainPanel = new JPanel();
@@ -126,6 +124,12 @@ public class MenuFrame extends JFrame {
 				textAreaUsers.append(name + '\n');
 			}
 		}
+	}
+	
+	private void enter(){
+		final DialogFrame dialog_frame = new DialogFrame(UserName, NameField.getText());
+		dialog_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		dialog_frame.setVisible(true);
 	}
 
 }

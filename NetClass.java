@@ -3,24 +3,19 @@ package task7;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import javax.swing.JOptionPane;
 
 public class NetClass{
 	private static final int CLIENT_PORT = 1556;
-	private static final int SERVER_PORT = 4511;
+	private static final int SERVER_PORT = 4506;
 	private static final String SERVER_ADDRESS = "192.168.100.7";
-	//private String work_type;
 	private ArrayList<MessageListener> listeners = new ArrayList<MessageListener>(5);
-	
 	public NetClass(String type){
-		//work_type = type;
 		//режими работы объекта. В зависимости от режима выбирается соответствующий вид потока и его обработка
 		if(type.equals("Authorization")){
 			new Thread(new Runnable(){
@@ -58,7 +53,27 @@ public class NetClass{
 								usersOnline.add(in.readUTF());
 							}
 							socket.close();
-							notifyListeners(usersOnline);
+							if(size > 0){
+								notifyListeners(usersOnline);
+							}
+						}
+					} 
+					catch (IOException e){
+					}
+				}
+			}).start();
+		}
+		else if(type.equals("DIALOG")){
+			new Thread(new Runnable(){
+				public void run() {
+					try{
+						final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT+2);
+						while (!Thread.interrupted()){
+							final Socket socket = serverSocket.accept();
+							final DataInputStream in = new DataInputStream(socket.getInputStream());
+							final String message = in.readUTF();
+							socket.close();
+							notifyListeners(message);
 						}
 					} 
 					catch (IOException e){
@@ -68,6 +83,7 @@ public class NetClass{
 		}
 	}
 	
+	//функция для отправки логина и пароля
 	public int send(String worktype, String login, String password){
 		try{
 			final Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
@@ -78,7 +94,6 @@ public class NetClass{
 			Integer port = CLIENT_PORT;
 			out.writeUTF(port.toString());
 			socket.close();
-			out.close();
 			return 0;
 		}
 		catch (UnknownHostException e){
@@ -91,12 +106,33 @@ public class NetClass{
 		}
 	}
 	
+	public int send(String worktype, String UserName, String FriendName, String message){
+		try{
+			final Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+			final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			out.writeUTF(worktype);
+			out.writeUTF(UserName);
+			out.writeUTF(FriendName);
+			out.writeUTF(message);
+			socket.close();
+			return 0;
+		}
+		catch (UnknownHostException e){
+			e.printStackTrace();
+			return 1;
+		} 
+		catch (IOException e){
+			e.printStackTrace();
+			return 2;
+		}
+	}
 	public void send(String worktype, String name){
 		try{
 			final Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
 			final DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 			out.writeUTF(worktype);
 			out.writeUTF(name);
+			socket.close();
 		}
 		catch (UnknownHostException e){//реагировать не нужно
 		} 
