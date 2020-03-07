@@ -27,7 +27,8 @@ public class LoginFrame extends JFrame{
 	private static final int MEDIUM_GAP = 10;
 	private static final int FRAME_MINIMUM_WIDTH = 500;
 	private static final int FRAME_MINIMUM_HEIGHT = 500;
-	private NetClass NetManager = new NetClass("Authorization");
+	private NetClass NetManager = new NetClass();
+	
 	public LoginFrame(){
 		super(FRAME_TITLE);
 		final Toolkit kit = Toolkit.getDefaultToolkit();
@@ -96,12 +97,14 @@ public class LoginFrame extends JFrame{
 			.addGap(MEDIUM_GAP)
 			.addComponent(MainPanel)
 			.addContainerGap());
-		
 		NetManager.addMessageListener(new MessageListener(){
 			public void messageReceived(String message) {
 				checkInResult(message);
 			}
 			public void messageReceived(LinkedList<String> message) {
+				//ничего
+			}
+			public void messageReceived(String name, String message) {
 				//ничего
 			}
 		});
@@ -134,15 +137,17 @@ public class LoginFrame extends JFrame{
 		ResultLabel.setVisible(true);
 		if(text.equals("true")){
 			ResultLabel.setText("Пароль правильный!");
-			final MenuFrame menu_frame = new MenuFrame(textFieldUsername.getText());
+			final MenuFrame menu_frame = new MenuFrame(textFieldUsername.getText(), NetManager);
 			menu_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			menu_frame.setVisible(true);
 			NetManager.removeMessageListener(new MessageListener(){ //убираю слушатель за ненадобностью
 				public void messageReceived(String message) {
 					checkInResult(message);
 				}
-
 				public void messageReceived(LinkedList<String> message) {
+					//ничего
+				}
+				public void messageReceived(String name, String message) {
 					//ничего
 				}
 			});

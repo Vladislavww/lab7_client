@@ -26,14 +26,15 @@ public class DialogFrame extends JFrame {
 	private static final int MEDIUM_GAP = 10;
 	private final JTextArea textAreaIncoming;
 	private final JTextArea textAreaOutgoing;
-	private NetClass NetManager = new NetClass("DIALOG");
+	private NetClass NetManager;
 	private String UserName;
 	private String FriendName; //логин собеседника
 	
-	public DialogFrame(String name1, String name2) {
+	public DialogFrame(String name1, String name2, NetClass NetManager) {
 		super(FRAME_TITLE);
 		UserName = name1;
 		FriendName = name2;
+		this.NetManager = NetManager;
 		setMinimumSize(new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
 		// Центрирование окна
 		final Toolkit kit = Toolkit.getDefaultToolkit();
@@ -95,10 +96,15 @@ public class DialogFrame extends JFrame {
 		
 		NetManager.addMessageListener(new MessageListener(){
 			public void messageReceived(String message) {
-				writeMessage(message);
+				//ничего
 			}
 			public void messageReceived(LinkedList<String> message){
 				//ничего
+			}
+			public void messageReceived(String name, String message) {
+				if(FriendName.equals(name)){
+					writeMessage(message);
+				}
 			}
 		});
 	}

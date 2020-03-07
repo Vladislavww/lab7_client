@@ -12,76 +12,52 @@ import java.util.LinkedList;
 
 public class NetClass{
 	private static final int CLIENT_PORT = 1556;
-	private static final int SERVER_PORT = 4506;
-	private static final String SERVER_ADDRESS = "192.168.100.7";
+	private static final int SERVER_PORT = 4512;
+	private static final String SERVER_ADDRESS = "192.168.100.8";
 	private ArrayList<MessageListener> listeners = new ArrayList<MessageListener>(5);
-	public NetClass(String type){
-		//режими работы объекта. В зависимости от режима выбирается соответствующий вид потока и его обработка
-		if(type.equals("Authorization")){
-			new Thread(new Runnable(){
-				public void run() {
-					try{
-						final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT);
-						while (!Thread.interrupted()){
-							final Socket socket = serverSocket.accept();
-							final DataInputStream in = new DataInputStream(socket.getInputStream());
+	public NetClass(){
+		new Thread(new Runnable() {
+			public void run(){
+				try{
+					System.out.println("+++");
+					final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT);
+					while (!Thread.interrupted()){
+						final Socket socket = serverSocket.accept();
+						final DataInputStream in = new DataInputStream(socket.getInputStream());
+						String work_type = in.readUTF();
+						if(work_type.equals("CHECK_IN")){
 							String answer = in.readUTF();
-							socket.close();
 							notifyListeners(answer);
 						}
-					} 
-					catch (IOException e) {
-					}
-				}
-			}).start();
-		}
-		else if(type.equals("ONLINE_MENU")){
-			new Thread(new Runnable(){
-				public void run() {
-					try{
-						final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT+1);
-						while (!Thread.interrupted()){
-							final Socket socket = serverSocket.accept();
-							final DataInputStream in = new DataInputStream(socket.getInputStream());
-							final String work_type = in.readUTF();
+						else if(work_type.equals("NEW_USER")){
+							String answer = in.readUTF();
+							notifyListeners(answer);
+						}
+						else if(work_type.equals("TAKE_USERS_ONLINE")){
 							LinkedList<String> usersOnline = new LinkedList<String>();
-							int size = 0;
-							if(work_type.equals("TAKE_USERS_ONLINE")){
-								size = Integer.parseInt(in.readUTF());
-							}
+							int size = Integer.parseInt(in.readUTF());
 							for(int i=0; i<size; i++){
 								usersOnline.add(in.readUTF());
 							}
-							socket.close();
 							if(size > 0){
 								notifyListeners(usersOnline);
 							}
 						}
-					} 
-					catch (IOException e){
-					}
-				}
-			}).start();
-		}
-		else if(type.equals("DIALOG")){
-			new Thread(new Runnable(){
-				public void run() {
-					try{
-						final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT+2);
-						while (!Thread.interrupted()){
-							final Socket socket = serverSocket.accept();
-							final DataInputStream in = new DataInputStream(socket.getInputStream());
+						else if(work_type.equals("DIALOG")){
+							final String name = in.readUTF();
 							final String message = in.readUTF();
-							socket.close();
-							notifyListeners(message);
+							notifyListeners(name, message);
 						}
-					} 
-					catch (IOException e){
+						socket.close();
 					}
+					
+				} 
+				catch (IOException e) {
 				}
-			}).start();
-		}
+			}
+		}).start();
 	}
+	
 	
 	//функция для отправки логина и пароля
 	public int send(String worktype, String login, String password){
@@ -154,17 +130,67 @@ public class NetClass{
 	
 	private void notifyListeners(String message) {
 		synchronized (listeners){
-			for (MessageListener listener:listeners) {
-				listener.messageReceived(message);
+			int size = listeners.size();
+			for(int i=0; i<size; i++){
+				listeners.get(i).messageReceived(message);
 			}
 		}
 	}
 	private void notifyListeners(LinkedList<String> message) {
 		synchronized (listeners){
-			for (MessageListener listener:listeners) {
-				listener.messageReceived(message);
+			int size = listeners.size();
+			for(int i=0; i<size; i++){
+				listeners.get(i).messageReceived(message);
 			}
 		}
 	}
+	
+	private void notifyListeners(String name, String message) {
+		synchronized (listeners){
+			int size = listeners.size();
+			for(int i=0; i<size; i++){
+				listeners.get(i).messageReceived(name, message);
+			}
+		}
+	}
+
+
+	/*public void run() {
+		try{
+			System.out.println("+++");
+			final ServerSocket serverSocket = new ServerSocket(CLIENT_PORT);
+			while (!Thread.interrupted()){
+				final Socket socket = serverSocket.accept();
+				final DataInputStream in = new DataInputStream(socket.getInputStream());
+				String work_type = in.readUTF();
+				if(work_type.equals("CHECK_IN")){
+					String answer = in.readUTF();
+					notifyListeners(answer);
+				}
+				else if(work_type.equals("NEW_USER")){
+					String answer = in.readUTF();
+					notifyListeners(answer);
+				}
+				else if(work_type.equals("TAKE_USERS_ONLINE")){
+					LinkedList<String> usersOnline = new LinkedList<String>();
+					int size = Integer.parseInt(in.readUTF());
+					for(int i=0; i<size; i++){
+						usersOnline.add(in.readUTF());
+					}
+					if(size > 0){
+						notifyListeners(usersOnline);
+					}
+				}
+				else if(work_type.equals("DIALOG")){
+					final String message = in.readUTF();
+					notifyListeners(message);
+				}
+				socket.close();
+			}
+			
+		} 
+		catch (IOException e) {
+		}
+	}*/
 	
 }

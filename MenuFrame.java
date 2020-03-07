@@ -27,7 +27,8 @@ public class MenuFrame extends JFrame {
 	private JTextField NameField;
 	private JTextArea textAreaUsers;
 	private static final int USERS_AREA_DEFAULT_ROWS = 10;
-	private NetClass NetManager = new NetClass("ONLINE_MENU");
+	private NetClass NetManager;
+	private boolean written = false;
 	private Timer onlineActionTimer = new Timer(1000, new ActionListener(){
 		public void actionPerformed(ActionEvent ev){
 			// Задача обработчика события ActionEvent - запрос пользователей онлайн и передача информации о себе
@@ -36,9 +37,10 @@ public class MenuFrame extends JFrame {
 		}
 	});
 	private String UserName;
-	public MenuFrame(String name){
+	public MenuFrame(String name, NetClass NetManager){
 		super(FRAME_TITLE);
 		UserName = name;
+		this.NetManager = NetManager;
 		final Toolkit kit = Toolkit.getDefaultToolkit();
 		setLocation((kit.getScreenSize().width - getWidth()) / 2, (kit.getScreenSize().height - getHeight()) / 2);
 		setMinimumSize(new Dimension(FRAME_MINIMUM_WIDTH, FRAME_MINIMUM_HEIGHT));
@@ -103,6 +105,9 @@ public class MenuFrame extends JFrame {
 			public void messageReceived(LinkedList<String> message){
 				writeOnlineUsers(message);
 			}
+			public void messageReceived(String name, String message) {
+				//ничего
+			}
 		});
 	}
 	
@@ -127,7 +132,7 @@ public class MenuFrame extends JFrame {
 	}
 	
 	private void enter(){
-		final DialogFrame dialog_frame = new DialogFrame(UserName, NameField.getText());
+		final DialogFrame dialog_frame = new DialogFrame(UserName, NameField.getText(), NetManager);
 		dialog_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		dialog_frame.setVisible(true);
 	}
